@@ -66,19 +66,59 @@ function performLogout() {
     console.log('Checkout button found, clicking it');
     checkoutButton.click();
     
-    // Set up a check for the biometric checkout authentication
-    checkForBiometricCheckoutAndClick();
+    // Set up a check for both biometric checkout authentications
+    handleBiometricCheckoutSequence();
   } else {
     console.log('Checkout button not found, looking for biometric checkout directly');
-    checkForBiometricCheckoutAndClick();
+    handleBiometricCheckoutSequence();
   }
+}
+
+// Function to handle the sequence of biometric checkouts
+function handleBiometricCheckoutSequence() {
+  let firstBiometricClicked = false;
+  
+  // Set up an interval to check for both biometric elements
+  const biometricCheckoutInterval = setInterval(function() {
+    // First look for the initial biometric element
+    if (!firstBiometricClicked) {
+      const biometricElement = document.querySelector('.finger_scan_checkout ');
+      if (biometricElement) {
+        console.log('First biometric authentication element found, clicking it');
+        biometricElement.click();
+        firstBiometricClicked = true;
+        
+        // Don't clear the interval yet, we need to wait for the second biometric
+        console.log('Waiting for second biometric element...');
+      }
+    } 
+    // After clicking the first one, look for the second biometric element
+    else {
+      const biometricCheckoutElement = document.querySelector('.finger_scan_checkout ');
+      if (biometricCheckoutElement) {
+        console.log('Second biometric checkout element found, clicking it');
+        biometricCheckoutElement.click();
+        clearInterval(biometricCheckoutInterval);
+        
+        // Mark as logged out
+        chrome.storage.sync.set({loggedIn: false});
+        console.log('Successfully logged out');
+      }
+    }
+  }, 1000); // Check every second
+  
+  // Stop checking after 60 seconds to prevent infinite loop
+  setTimeout(function() {
+    clearInterval(biometricCheckoutInterval);
+    console.log('Timeout reached for biometric checkout sequence');
+  }, 60000);
 }
 
 // Function to check for biometric authentication and click it
 function checkForBiometricAndClick() {
   // Set up an interval to check for the biometric element
   const biometricCheckInterval = setInterval(function() {
-    const biometricElement = document.querySelector('.finger_scan');
+    const biometricElement = document.querySelector('.finger_scan_checkout ');
     if (biometricElement) {
       console.log('Biometric authentication element found, clicking it');
       biometricElement.click();
@@ -89,27 +129,6 @@ function checkForBiometricAndClick() {
   // Stop checking after 30 seconds to prevent infinite loop
   setTimeout(function() {
     clearInterval(biometricCheckInterval);
-  }, 30000);
-}
-
-// Function to check for biometric checkout authentication and click it
-function checkForBiometricCheckoutAndClick() {
-  // Set up an interval to check for the biometric checkout element
-  const biometricCheckoutInterval = setInterval(function() {
-    const biometricCheckoutElement = document.querySelector('.finger_scan_checkout');
-    if (biometricCheckoutElement) {
-      console.log('Biometric checkout element found, clicking it');
-      biometricCheckoutElement.click();
-      clearInterval(biometricCheckoutInterval);
-      
-      // Mark as logged out
-      chrome.storage.sync.set({loggedIn: false});
-    }
-  }, 1000); // Check every second
-  
-  // Stop checking after 30 seconds to prevent infinite loop
-  setTimeout(function() {
-    clearInterval(biometricCheckoutInterval);
   }, 30000);
 }
 
