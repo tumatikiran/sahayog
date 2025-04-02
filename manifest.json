@@ -3,7 +3,7 @@
   "name": "Sahayog Auto Login",
   "version": "1.0",
   "description": "Automatically logs in to Sahayog UKnowva portal",
-  "permissions": ["storage", "activeTab", "scripting", "alarms"],
+  "permissions": ["storage", "activeTab", "scripting", "alarms", "tabs"],
   "host_permissions": ["https://sahayog.uknowva.com/*"],
   "action": {
     "default_popup": "popup.html",
