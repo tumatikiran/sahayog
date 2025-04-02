@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Load saved credentials
-  chrome.storage.sync.get(['username', 'password'], function(result) {
+  chrome.storage.sync.get(['username', 'password', 'scheduledTime'], function(result) {
     if (result.username) {
       document.getElementById('username').value = result.username;
     }
     if (result.password) {
       document.getElementById('password').value = result.password;
+    }
+    if (result.scheduledTime) {
+      document.getElementById('loginTime').value = result.scheduledTime;
     }
   });
 
@@ -27,8 +30,51 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // Schedule login
+  document.getElementById('scheduleLogin').addEventListener('click', function() {
+    const loginTime = document.getElementById('loginTime').value;
+    
+    if (!loginTime) {
+      showStatus('Please select a time to schedule login', 'error');
+      return;
+    }
+    
+    // Save the scheduled time
+    chrome.storage.sync.set({
+      scheduledTime: loginTime
+    }, function() {
+      // Calculate time until login
+      const now = new Date();
+      const scheduledDateTime = new Date();
+      
+      const [hours, minutes] = loginTime.split(':');
+      scheduledDateTime.setHours(parseInt(hours));
+      scheduledDateTime.setMinutes(parseInt(minutes));
+      scheduledDateTime.setSeconds(0);
+      
+      // If the scheduled time is earlier today, schedule it for tomorrow
+      if (scheduledDateTime < now) {
+        scheduledDateTime.setDate(scheduledDateTime.getDate() + 1);
+      }
+      
+      const timeUntilLogin = scheduledDateTime.getTime() - now.getTime();
+      const minutesUntil = Math.round(timeUntilLogin / 60000);
+      
+      // Set an alarm for the scheduled time
+      chrome.alarms.create('scheduledLogin', {
+        when: scheduledDateTime.getTime()
+      });
+      
+      showStatus(`Login scheduled for ${loginTime} (in about ${minutesUntil} minutes)`, 'success');
+    });
+  });
+
   // Login now
   document.getElementById('login').addEventListener('click', function() {
+    performLogin();
+  });
+
+  function performLogin() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       if (tabs.length === 0) {
         showStatus('No active tab found', 'error');
@@ -83,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
-  });
+  }
 
   function showStatus(message, type) {
     const statusElement = document.getElementById('status');
