@@ -82,7 +82,7 @@ function handleBiometricCheckoutSequence() {
   const biometricCheckoutInterval = setInterval(function() {
     // First look for the initial biometric element
     if (!firstBiometricClicked) {
-      const biometricElement = document.querySelector('.finger_scan');
+      const biometricElement = document.querySelector('.finger_scan_checkout ');
       if (biometricElement) {
         console.log('First biometric authentication element found, clicking it');
         biometricElement.click();
@@ -94,7 +94,7 @@ function handleBiometricCheckoutSequence() {
     } 
     // After clicking the first one, look for the second biometric element
     else {
-      const biometricCheckoutElement = document.querySelector('.finger_scan');
+      const biometricCheckoutElement = document.querySelector('.finger_scan_checkout');
       if (biometricCheckoutElement) {
         console.log('Second biometric checkout element found, clicking it');
         biometricCheckoutElement.click();
@@ -118,7 +118,7 @@ function handleBiometricCheckoutSequence() {
 function checkForBiometricAndClick() {
   // Set up an interval to check for the biometric element
   const biometricCheckInterval = setInterval(function() {
-    const biometricElement = document.querySelector('.finger_scan');
+    const biometricElement = document.querySelector('.finger_scan, .finger_scan_checkout');
     if (biometricElement) {
       console.log('Biometric authentication element found, clicking it');
       biometricElement.click();
