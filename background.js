@@ -58,7 +58,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
                 // Now try sending the message again
                 setTimeout(function() {
                   chrome.tabs.sendMessage(tab.id, {action: "performLogin"});
-                }, 1000);
+                }, 5000); // Increased to 3 seconds to allow location to load
               });
             }
           });
